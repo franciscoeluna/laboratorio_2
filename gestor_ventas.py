@@ -37,10 +37,18 @@ class GestorVentas:
             self.cursor.execute(query, values)
             self.connection.commit()
             self.recargar_ventas()
-            print("Venta registrada exitosamente.")
+            print(f"Venta registrada exitosamente con el ID {self.__contador_id}")
         
         except Exception as e:
             print(f"Error al crear la venta: {e}")
+
+    @property
+    def contador(self):
+        return self.__contador_id
+    
+    @contador.getter
+    def contador(self):
+        return self.__contador_id
 
     def recargar_ventas(self):
         self.__ventas = self.cargar_ventas()
@@ -50,14 +58,6 @@ class GestorVentas:
             self.cursor.close()
         if self.connection and self.connection.is_connected():
             self.connection.close()
-
-    @property
-    def contador(self):
-        return self.__contador_id
-    
-    @contador.getter
-    def contador(self):
-        return self.__contador_id
     
     def cargar_ventas(self):
         ventas = {}
@@ -122,14 +122,17 @@ class GestorVentas:
     def buscar_ventas_por_fecha(self, fecha):
         ventas_encontradas = []
         if isinstance(fecha, str):
-            fecha = datetime.strptime(fecha, "%d/%m/%Y")
+            try:
+                fecha = datetime.strptime(fecha, "%d/%m/%Y").date()
+            except ValueError:
+                print("Error: el formato de fecha debe ser DD-MM-YYYY.")
+                return []
         for id_venta, venta in self.__ventas.items():
             venta_fecha = venta['fecha']
             if isinstance(venta_fecha, datetime):
                 venta_fecha = venta_fecha.date()
             
-            if venta_fecha == fecha.date():
+            if venta_fecha == fecha:
                 ventas_encontradas.append((id_venta, venta))
-        
         return ventas_encontradas
 

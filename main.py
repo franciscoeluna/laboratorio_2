@@ -9,21 +9,22 @@ def main():
         print("\n--- Gestión de Ventas ---")
         print("1. Crear venta online")
         print("2. Crear venta local")
-        print("3. Leer venta por ID")
+        print("3. Ver venta por ID")
         print("4. Actualizar venta")
         print("5. Eliminar venta")
         print("6. Ver ventas por fecha")
         print("7. Salir")
         
         opcion = input("Seleccione una opción: ")
-        
+
         if opcion == '1':
             fecha = datetime.now().date().isoformat()
             cliente = input("Ingrese el nombre del cliente: ").capitalize()
-            productos_input= input("Ingrese los productos vendidos (separados por coma): ").split(',')
+            productos_input = input("Ingrese los productos vendidos (separados por coma): ").split(',')
             productos = [producto.strip() for producto in productos_input]
             direccion_envio = input("Ingrese la dirección de envío: ")
-            venta = VentaOnline(fecha, cliente, productos, None, direccion_envio)
+            nuevo_id = gestor.generar_id_venta()
+            venta = VentaOnline(fecha, cliente, productos, nuevo_id, direccion_envio)
             gestor.crear_venta(venta)
         
         elif opcion == '2':
@@ -31,7 +32,8 @@ def main():
             cliente = input("Ingrese el nombre del cliente: ").capitalize()
             productos = input("Ingrese los productos vendidos (separados por coma): ").split(',')
             tienda = input("Ingrese la tienda: ")
-            venta = VentaLocal(fecha, cliente, productos, None, tienda)
+            nuevo_id = gestor.generar_id_venta()
+            venta = VentaOnline(fecha, cliente, productos, nuevo_id, direccion_envio)
             gestor.crear_venta(venta)
         
         elif opcion == '3':
@@ -57,7 +59,7 @@ def main():
                 tienda = input("Ingrese la tienda: ")
                 nueva_venta = VentaLocal(fecha, cliente, productos, id_venta, tienda)
             else:
-                print("Tipo de venta no válido.")
+                print("Tipo de venta no válido, debe ingresar 'local' u 'online'.")
                 continue
             
             gestor.actualizar_venta(id_venta, nueva_venta)
@@ -69,7 +71,9 @@ def main():
         elif opcion == '6':
             fecha = input("Ingrese la fecha para buscar ventas (dd/mm/yyyy): ")
             ventas = gestor.buscar_ventas_por_fecha(fecha)
-            if ventas:
+            if ventas is None:
+                pass
+            elif ventas:
                 print(f"Ventas realizadas el {fecha}:")
                 for i, (id_venta, venta) in enumerate(ventas):
                     print(f"{i + 1}. ID {id_venta}: {venta}")
